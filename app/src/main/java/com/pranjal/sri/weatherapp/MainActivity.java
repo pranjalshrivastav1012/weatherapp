@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import android.util.Log;
 
+import com.pranjal.sri.weatherapp.api.response.Weather;
+
 public class MainActivity extends Activity implements LocationListener{
     protected LocationManager locationManager;
     protected LocationListener locationListener;
@@ -25,6 +27,9 @@ public class MainActivity extends Activity implements LocationListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         txtLat = (TextView) findViewById(R.id.textview1);
+
+//        Weather wthr = new Weather(1, "abc", "xyz", "lol");
+//        System.out.println(wthr.getId());
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
