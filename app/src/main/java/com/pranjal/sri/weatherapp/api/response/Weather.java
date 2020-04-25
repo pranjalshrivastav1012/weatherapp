@@ -8,7 +8,8 @@ public class Weather implements Serializable {
     private String description;
     private String icon;
 
-    public Weather(){
+    public Weather
+            (){
         this.id = id;
         this.main = main;
         this.description = description;
