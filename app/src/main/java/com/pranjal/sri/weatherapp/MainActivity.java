@@ -24,6 +24,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
+import lombok.SneakyThrows;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -46,33 +47,41 @@ public class MainActivity extends Activity {
 
     private void setDataResponse(float lat, float lon, String appId){
         txtLat = (TextView) findViewById(R.id.textview1);
-        String url ="https://api.openweathermap.org/data/2.5/weather?lat=" +
+        String stringURL ="https://api.openweathermap.org/data/2.5/weather?lat=" +
                 lat + "&lon=" + lon + "&appid=" + appId;
 
 
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url(url).build();
+        OkHttpClient client = new OkHttpClient();                           //Make client
+
+        Request request = new Request.Builder().url(stringURL).build();     //Make request
 
         client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(Call call, IOException e) {               //On request fail
                 e.printStackTrace();
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if(response.isSuccessful()){
-                    final String resp = response.body().string();
+                    final String resp = response.body().string();           //Converted response to String
 
-                    MainActivity.this.runOnUiThread(new Runnable() {
+                    MainActivity.this.runOnUiThread(new Runnable() {        //Run Client request call
+                        @SneakyThrows
                         @Override
-                        public void run() {
-                            txtLat.setText(resp);
-                            try{
-                                txtLat.setText(resp);
-                            } catch (Exception ignored) {
+                        public void run() {                                 //Run request
+                            txtLat.setText(resp);                           //String set text
+                            ObjectMapper mapper = new ObjectMapper();
+                            try {
+                                DataResponse readValue = mapper.readValue(resp, DataResponse.class);
+                                txtLat.setText(readValue.getName());
+                            } catch (Exception e) {
 
                             }
+                            //DataResponse dataResponse = new DataResponse;
+                            //String (resp) -> convert into DataResponse
+                            //Online search : String into Response/POJO in android
+                            //txtLat.setText(dataResponse.getName());
                         }
                     });
                 }
