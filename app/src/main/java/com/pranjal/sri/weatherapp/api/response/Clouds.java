@@ -2,7 +2,7 @@ package com.pranjal.sri.weatherapp.api.response;
 
 import java.io.Serializable;
 
-class Clouds implements Serializable {
+public class Clouds implements Serializable {
 
     private int all;
 

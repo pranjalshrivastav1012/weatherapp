@@ -2,7 +2,7 @@ package com.pranjal.sri.weatherapp.api.response;
 
 import java.io.Serializable;
 
-class MainWeather implements Serializable {
+public class MainWeather implements Serializable {
 
     private float temp;
     private float feels_like;

@@ -2,7 +2,7 @@ package com.pranjal.sri.weatherapp.api.response;
 
 import java.io.Serializable;
 
-class CountrySystem implements Serializable {
+public class CountrySystem implements Serializable {
 
     private String country;
     private int sunrise;

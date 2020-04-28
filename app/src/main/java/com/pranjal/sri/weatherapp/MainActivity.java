@@ -2,28 +2,16 @@ package com.pranjal.sri.weatherapp;
 
 import android.os.Bundle;
 import android.app.Activity;
-import android.content.Context;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.widget.TextView;
 
-import android.util.Log;
-
-import com.android.volley.RequestQueue;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.RequestFuture;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.pranjal.sri.weatherapp.api.response.DataResponse;
-import com.pranjal.sri.weatherapp.api.response.Weather;
-
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 
+import lombok.Data;
 import lombok.SneakyThrows;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -33,7 +21,7 @@ import okhttp3.Response;
 
 public class MainActivity extends Activity {
 
-    TextView txtLat;
+    TextView txtLat, txtLon;
 
     private final String appid = "ff512bbf2e8833415bb66c6427eab63e";
 
@@ -46,14 +34,15 @@ public class MainActivity extends Activity {
     }
 
     private void setDataResponse(float lat, float lon, String appId){
-        txtLat = (TextView) findViewById(R.id.textview1);
-        String stringURL ="https://api.openweathermap.org/data/2.5/weather?lat=" +
-                lat + "&lon=" + lon + "&appid=" + appId;
+        String stringURL ="https://api.openweathermap.org/data/2.5/weather" +
+                "?lat=" + lat + "&lon=" + lon + "&appid=" + appId;
 
+        getResponse(stringURL);
+    }
 
-        OkHttpClient client = new OkHttpClient();                           //Make client
-
-        Request request = new Request.Builder().url(stringURL).build();     //Make request
+    private void getResponse(String url){
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().url(url).build();
 
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -62,30 +51,43 @@ public class MainActivity extends Activity {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, final Response response) throws IOException {
                 if(response.isSuccessful()){
                     final String resp = response.body().string();           //Converted response to String
-
                     MainActivity.this.runOnUiThread(new Runnable() {        //Run Client request call
                         @SneakyThrows
                         @Override
                         public void run() {                                 //Run request
-                            txtLat.setText(resp);                           //String set text
-                            ObjectMapper mapper = new ObjectMapper();
-                            try {
-                                DataResponse readValue = mapper.readValue(resp, DataResponse.class);
-                                txtLat.setText(readValue.getName());
-                            } catch (Exception e) {
-
-                            }
-                            //DataResponse dataResponse = new DataResponse;
-                            //String (resp) -> convert into DataResponse
-                            //Online search : String into Response/POJO in android
-                            //txtLat.setText(dataResponse.getName());
+                            DataResponse dataResponse = getPOJOFromString(resp);
+                            setData(dataResponse);
                         }
                     });
                 }
             }
         });
     }
+
+    //start
+    private DataResponse getPOJOFromString(String response){
+        Gson mGson = new Gson();
+        return mGson.fromJson(response, DataResponse.class);
+    }
+    //end
+
+    //start
+    private void setData(DataResponse dataResponse){
+        txtLat = (TextView) findViewById(R.id.textview1);
+
+        txtLat.setText(dataResponse.getMain().getTemp() + "");
+
+        //Normal jo kaam karte the
+        //Saare Text view wagrah lagane wale
+
+        /*TIME :
+        * Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        String date_time = sdf.format(cal.getTime())
+        * */
+    }
+    //end
 }
