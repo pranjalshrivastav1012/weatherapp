@@ -25,7 +25,7 @@ import okhttp3.Response;
 public class MainActivity extends Activity {
 
 
-    TextView mCity,mDatetime, mMainw,mTemo, mTmin, mTmax;
+    TextView mCity,mDatetime, mdescp,mTemp, mTmin, mTmax;
 
     private final String appid = "ff512bbf2e8833415bb66c6427eab63e";
 
@@ -80,10 +80,9 @@ public class MainActivity extends Activity {
 
     //start
     private void setData(DataResponse dataResponse){
-        mCity = (TextView) findViewById(R.id.city_name);
-        mDatetime= (TextView)findViewById(R.id.date_time);
-        mMainw = (TextView)findViewById(R.id.main_weather);
-        mTmax = (TextView)findViewById(R.id.temp_min);
+        mButton();
+
+
 
 
         Calendar calendar = Calendar.getInstance();
@@ -92,10 +91,25 @@ public class MainActivity extends Activity {
 
 
         mCity.setText(dataResponse.getName() + "");
-        mMainw.setText(dataResponse.getMain().getTemp()+ "");
-        mTmax.setText(dataResponse.getMain().getTemp_max()+"");
-        mTmin.setText(dataResponse.getMain().getTemp_min()+"");
+        mTemp.setText(dataResponse.getMain().getTemp()-273+ "");
+        mTmax.setText(dataResponse.getMain().getTemp_max()-273+"");
+        mTmin.setText(dataResponse.getMain().getTemp_min()-273+"");
         mDatetime.setText(dateTime);
+
+
+
+
+
+        }
+
+
+    private void mButton(){
+        mCity = (TextView) findViewById(R.id.city_name);
+        mDatetime= (TextView)findViewById(R.id.date_time);
+        mTmax = (TextView)findViewById(R.id.temp_max);
+        mTmin = (TextView)findViewById(R.id.temp_min);
+        mTemp = (TextView)findViewById(R.id.temp);
+        mdescp = (TextView)findViewById(R.id.main_weather);
 
 
     }

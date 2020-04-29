@@ -32,9 +32,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|center_horizontal"
-                    android:layout_marginLeft="50dp"
-                    android:textSize="30dp"
-                    android:text="City"
+                    android:layout_marginLeft="20dp"
+                    android:textSize="20dp"
+                    android:text="Ambala"
+                    android:textColor="@android:color/white"
                     />
 
             </LinearLayout>
@@ -48,7 +49,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="datentime"
-                    android:layout_marginLeft="45dp"/>
+                    android:layout_marginTop="15dp"
+                    android:layout_marginLeft="20dp"
+                    android:textColor="@android:color/white"/>
 
             </LinearLayout>
 
@@ -56,9 +59,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
-
-
-
 
 
 
@@ -82,9 +82,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="65dp"
-            android:text="Cloudy"
+            android:text="Weather"
             android:layout_marginTop="65dp"
-            android:layout_marginLeft="65dp"/>
+            android:layout_marginLeft="65dp"
+            android:textColor="@android:color/white"/>
 
 
     </LinearLayout>
@@ -96,22 +97,23 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_weight="30"
             android:orientation="horizontal">
             <TextView
                 android:id="@+id/temp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical|center_horizontal"
-                android:text="temp"
-                android:layout_marginLeft="20dp"
-                android:textSize="80dp"/>
+                android:text="Temp"
+                android:layout_marginLeft="50dp"
+                android:textSize="80dp"
+                android:textColor="@android:color/white"/>
 
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_weight="70"
             android:orientation="vertical">
 
             <LinearLayout
@@ -121,13 +123,13 @@
 
                 <TextView
                     android:id="@+id/temp_max"
-                    android:layout_width="wrap_content"
+                    android:layout_width="79dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
                     android:text="temp max"
-                    android:layout_marginTop="60dp"
-                    android:layout_marginLeft="20dp"
-                    android:textSize="20dp"
-                    />
+                    android:textSize="15dp"
+                    android:layout_marginStart="10dp"
+                    android:textColor="@android:color/white"/>
 
 
 
@@ -141,10 +143,11 @@
                     android:id="@+id/temp_min"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
                     android:text="temp min"
-                    android:textSize="20dp"
-                    android:layout_marginTop="10dp"/>
+                    android:textSize="15dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@android:color/white"/>
 
 
             </LinearLayout>
