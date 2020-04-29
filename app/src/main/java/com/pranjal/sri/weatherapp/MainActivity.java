@@ -8,6 +8,9 @@ import com.google.gson.Gson;
 import com.pranjal.sri.weatherapp.api.response.DataResponse;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
@@ -21,7 +24,8 @@ import okhttp3.Response;
 
 public class MainActivity extends Activity {
 
-    TextView txtLat, txtLon;
+
+    TextView mCity,mDatetime, mMainw,mTemo, mTmin, mTmax;
 
     private final String appid = "ff512bbf2e8833415bb66c6427eab63e";
 
@@ -76,18 +80,24 @@ public class MainActivity extends Activity {
 
     //start
     private void setData(DataResponse dataResponse){
-        txtLat = (TextView) findViewById(R.id.textview1);
+        mCity = (TextView) findViewById(R.id.city_name);
+        mDatetime= (TextView)findViewById(R.id.date_time);
+        mMainw = (TextView)findViewById(R.id.main_weather);
+        mTmax = (TextView)findViewById(R.id.temp_min);
 
-        txtLat.setText(dataResponse.getMain().getTemp() + "");
 
-        //Normal jo kaam karte the
-        //Saare Text view wagrah lagane wale
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat  simpleDateFormat= new SimpleDateFormat("dd-MM-yyyy");
+        String dateTime= simpleDateFormat.format(calendar.getTime());
 
-        /*TIME :
-        * Calendar cal = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-        String date_time = sdf.format(cal.getTime())
-        * */
+
+        mCity.setText(dataResponse.getName() + "");
+        mMainw.setText(dataResponse.getMain().getTemp()+ "");
+        mTmax.setText(dataResponse.getMain().getTemp_max()+"");
+        mTmin.setText(dataResponse.getMain().getTemp_min()+"");
+        mDatetime.setText(dateTime);
+
+
     }
-    //end
+
 }
