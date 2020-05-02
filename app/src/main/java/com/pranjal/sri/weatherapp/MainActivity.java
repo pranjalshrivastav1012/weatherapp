@@ -1,16 +1,33 @@
 package com.pranjal.sri.weatherapp;
 
+import android.content.Context;
+import android.content.IntentSender;
 import android.graphics.drawable.GradientDrawable;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.app.Activity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.gson.Gson;
 import com.pranjal.sri.weatherapp.api.response.DataResponse;
 
@@ -18,6 +35,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
@@ -34,19 +52,51 @@ import static com.pranjal.sri.weatherapp.R.drawable.ic_storm;
 public class MainActivity extends Activity {
 
 
-    TextView mCity, mDatetime, mdescp, mTemp, mTmin, mTmax,mTfeelsLike, mWindSpeed;
+    TextView mCity, mDatetime, mdescp, mTemp, mTmin, mTmax, mTfeelsLike, mWindSpeed;
     ImageView mWeatherType;
     LinearLayout mainBg;
     ImageButton mImageBtn;
 
+
     private final String appid = "ff512bbf2e8833415bb66c6427eab63e";
+    protected static final String TAG = "LocationOnOff";
+
+    private GoogleApiClient googleApiClient;
+    final static int REQUEST_LOCATION = 199;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        setDataResponse(30.35f, 76.77f, appid);
+        this.setFinishOnTouchOutside(true);
+
+        // Todo Location Already on  ... start
+        final LocationManager manager = (LocationManager) MainActivity.this.getSystemService(Context.LOCATION_SERVICE);
+        if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && hasGPSDevice(MainActivity.this)) {
+            //Toast.makeText(MainActivity.this,"Gps already enabled",Toast.LENGTH_SHORT).show();
+            //code to get GPS
+            setDataResponse(30.35f, 76.77f, appid);
+            //finish();
+        }
+        // Todo Location Already on  ... end
+
+        if(!hasGPSDevice(MainActivity.this)){
+            Toast.makeText(MainActivity.this,"Gps not Supported",Toast.LENGTH_SHORT).show();
+        }
+
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && hasGPSDevice(MainActivity.this)) {
+
+            //Toast.makeText(MainActivity.this,"Gps not enabled",Toast.LENGTH_SHORT).show();
+            enableLoc();
+        }else{
+
+            //Toast.makeText(MainActivity.this,"Gps already enabled",Toast.LENGTH_SHORT).show();
+            //yaha bhi same
+            setDataResponse(30.35f, 76.77f, appid);
+        }
+
+        //setDataResponse(30.35f, 76.77f, appid);
     }
 
     private void setDataResponse(float lat, float lon, String appId) {
@@ -102,8 +152,8 @@ public class MainActivity extends Activity {
 
         mCity.setText(dataResponse.getName() + "");
         mTemp.setText(String.format("%.1f", (dataResponse.getMain().getTemp() - 273)) + "\u00B0");
-        mTmax.setText("Max:" +String.format("%.1f", (dataResponse.getMain().getTemp_max() - 273)) + "\u2103");
-        mTmin.setText("Min:"+String.format("%.1f", (dataResponse.getMain().getTemp_min() - 273)) + "\u2103");
+        mTmax.setText("Max:" + String.format("%.1f", (dataResponse.getMain().getTemp_max() - 273)) + "\u2103");
+        mTmin.setText("Min:" + String.format("%.1f", (dataResponse.getMain().getTemp_min() - 273)) + "\u2103");
         mDatetime.setText(dateTime);
         mdescp.setText(dataResponse.getWeather()[0].getDescription());
         YoYo.with(Techniques.StandUp)
@@ -115,8 +165,8 @@ public class MainActivity extends Activity {
         mImageBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mTfeelsLike.setText ("Feels like :"+ String.format("%.1f",(dataResponse.getMain().getFeels_like() -273))+ "\u2103");
-                mWindSpeed.setText("Wind Speed :"+ dataResponse.getWind().getSpeed());
+                mTfeelsLike.setText("Feels like :" + String.format("%.1f", (dataResponse.getMain().getFeels_like() - 273)) + "\u2103");
+                mWindSpeed.setText("Wind Speed :" + dataResponse.getWind().getSpeed());
             }
         });
 
@@ -157,7 +207,7 @@ public class MainActivity extends Activity {
                     new int[]{0xFF797D87, 0xFFACB5BB});
             mainBg.setBackgroundDrawable(gd);
 
-        } else if (dataResponse.getWeather()[0].getId() <= 721 && dataResponse.getWeather()[0].getId() >= 701 ) {
+        } else if (dataResponse.getWeather()[0].getId() <= 721 && dataResponse.getWeather()[0].getId() >= 701) {
             mWeatherType.setImageResource(R.drawable.ic_fog);
             GradientDrawable gd = new GradientDrawable(
                     GradientDrawable.Orientation.TOP_BOTTOM,
@@ -165,16 +215,13 @@ public class MainActivity extends Activity {
             mainBg.setBackgroundDrawable(gd);
 
 
-        }else if (dataResponse.getWeather()[0].getId() <= 761 && dataResponse.getWeather()[0].getId() >= 731 ) {
+        } else if (dataResponse.getWeather()[0].getId() <= 761 && dataResponse.getWeather()[0].getId() >= 731) {
             mWeatherType.setImageResource(R.drawable.ic_sandstorm);
             GradientDrawable gd = new GradientDrawable(
                     GradientDrawable.Orientation.TOP_BOTTOM,
                     new int[]{0xFFB27239, 0xFFD8A25D});
             mainBg.setBackgroundDrawable(gd);
-        }
-
-
-        else if (dataResponse.getWeather()[0].getId() == 800) {
+        } else if (dataResponse.getWeather()[0].getId() == 800) {
             mWeatherType.setImageResource(R.drawable.ic_sunny);
             GradientDrawable gd = new GradientDrawable(
                     GradientDrawable.Orientation.TOP_BOTTOM,
@@ -192,23 +239,88 @@ public class MainActivity extends Activity {
     }
 
 
+    private void mButton() {
+        mCity = (TextView) findViewById(R.id.city_name);
+        mDatetime = (TextView) findViewById(R.id.date_time);
+        mTmax = (TextView) findViewById(R.id.temp_max);
+        mTmin = (TextView) findViewById(R.id.temp_min);
+        mTemp = (TextView) findViewById(R.id.temp);
+        mdescp = (TextView) findViewById(R.id.main_weather);
+        mWeatherType = (ImageView) findViewById(R.id.weather_type);
+        mainBg = (LinearLayout) findViewById(R.id.main_background);
+        mWindSpeed = (TextView) findViewById(R.id.wind_speed);
+        mTfeelsLike = (TextView) findViewById(R.id.feels_like);
+        mImageBtn = (ImageButton) findViewById(R.id.image_btn);
+    }
 
-        private void mButton(){
-            mCity = (TextView) findViewById(R.id.city_name);
-            mDatetime = (TextView) findViewById(R.id.date_time);
-            mTmax = (TextView) findViewById(R.id.temp_max);
-            mTmin = (TextView) findViewById(R.id.temp_min);
-            mTemp = (TextView) findViewById(R.id.temp);
-            mdescp = (TextView) findViewById(R.id.main_weather);
-            mWeatherType = (ImageView) findViewById(R.id.weather_type);
-            mainBg = (LinearLayout) findViewById(R.id.main_background);
-            mWindSpeed = (TextView)findViewById(R.id.wind_speed);
-            mTfeelsLike = (TextView)findViewById(R.id.feels_like);
-            mImageBtn = (ImageButton)findViewById(R.id.image_btn);
+    private boolean hasGPSDevice(Context context) {
+        final LocationManager mgr = (LocationManager) context
+                .getSystemService(Context.LOCATION_SERVICE);
+        if (mgr == null)
+            return false;
+        final List<String> providers = mgr.getAllProviders();
+        if (providers == null)
+            return false;
+        return providers.contains(LocationManager.GPS_PROVIDER);
+    }
 
+    private void enableLoc() {
 
+        if (googleApiClient == null) {
+            googleApiClient = new GoogleApiClient.Builder(MainActivity.this)
+                    .addApi(LocationServices.API)
+                    .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                        @Override
+                        public void onConnected(Bundle bundle) {
+
+                        }
+
+                        @Override
+                        public void onConnectionSuspended(int i) {
+                            googleApiClient.connect();
+                        }
+                    })
+                    .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+                        @Override
+                        public void onConnectionFailed(ConnectionResult connectionResult) {
+
+                            Log.d("Location error","Location error " + connectionResult.getErrorCode());
+                        }
+                    }).build();
+            googleApiClient.connect();
+
+            LocationRequest locationRequest = LocationRequest.create();
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            locationRequest.setInterval(30 * 1000);
+            locationRequest.setFastestInterval(5 * 1000);
+            LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                    .addLocationRequest(locationRequest);
+
+            builder.setAlwaysShow(true);
+
+            PendingResult<LocationSettingsResult> result =
+                    LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
+            result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+                @Override
+                public void onResult(LocationSettingsResult result) {
+                    final Status status = result.getStatus();
+                    switch (status.getStatusCode()) {
+                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                            try {
+                                // Show the dialog by calling startResolutionForResult(),
+                                // and check the result in onActivityResult().
+                                status.startResolutionForResult(MainActivity.this, REQUEST_LOCATION);
+
+                                finish();
+                            } catch (IntentSender.SendIntentException e) {
+                                // Ignore the error.
+                            }
+                            break;
+                    }
+                }
+            });
         }
     }
 
-
+}
 
