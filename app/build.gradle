@@ -33,4 +33,9 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.4.1'
     implementation 'com.google.code.gson:gson:2.8.6'
+    compile 'com.daimajia.easing:library:2.0@aar'
+    compile 'com.daimajia.androidanimations:library:2.3@aar'
+    //noinspection GradleCompatible
+    compile 'com.android.support:support-compat:25.1.1'
+
 }
