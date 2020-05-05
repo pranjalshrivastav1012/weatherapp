@@ -58,13 +58,14 @@ import static com.pranjal.sri.weatherapp.R.drawable.ic_storm;
 
 public class MainActivity extends Activity implements LocationListener {
 
-
+    protected LocationListener locationListener;
+    protected LocationManager locationManager;
     TextView mCity, mDatetime, mdescp, mTemp, mTmin, mTmax, mTfeelsLike, mWindSpeed;
     ImageView mWeatherType;
     LinearLayout mainBg;
     ImageButton mImageBtn;
-    private LocationManager locationManager;
-    private String provider;
+    protected boolean gps_enabled, network_enabled;
+    Location location;
 
     private final String appid = "ff512bbf2e8833415bb66c6427eab63e";
     protected static final String TAG = "LocationOnOff";
@@ -85,9 +86,7 @@ public class MainActivity extends Activity implements LocationListener {
         if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && hasGPSDevice(MainActivity.this)) {
             //Toast.makeText(MainActivity.this,"Gps already enabled",Toast.LENGTH_SHORT).show();
             //code to get GPS
-            LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-            Criteria criteria = new Criteria();
-            provider = locationManager.getBestProvider(criteria, false);
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
                 //    ActivityCompat#requestPermissions
@@ -96,12 +95,9 @@ public class MainActivity extends Activity implements LocationListener {
                 //                                          int[] grantResults)
                 // to handle the case where the user grants the permission. See the documentation
                 // for ActivityCompat#requestPermissions for more details.
-                Toast.makeText(this, "Check bottom", Toast.LENGTH_SHORT).show();
                 return;
             }
-            Location location = locationManager.getLastKnownLocation(provider);
-            onLocationChanged(location);
-
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
             setDataResponse((float) location.getLatitude(), (float) location.getLongitude(), appid);
             //finish();
         }
@@ -119,12 +115,18 @@ public class MainActivity extends Activity implements LocationListener {
 
             //Toast.makeText(MainActivity.this,"Gps already enabled",Toast.LENGTH_SHORT).show();
             //yaha bhi same
-            LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-            Criteria criteria = new Criteria();
-            provider = locationManager.getBestProvider(criteria, false);
-            @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(provider);
-            onLocationChanged(location);
-
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
             setDataResponse((float) location.getLatitude(), (float) location.getLongitude(), appid);
         }
 
@@ -355,53 +357,25 @@ public class MainActivity extends Activity implements LocationListener {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            Toast.makeText(this, "Check top", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        locationManager.requestLocationUpdates(provider, 400, 1, this);
-    }
-
-    /* Remove the locationlistener updates when Activity is paused */
-    @Override
-    protected void onPause() {
-        super.onPause();
-        locationManager.removeUpdates(this);
-    }
-
-    @Override
     public void onLocationChanged(Location location) {
-        int lat = (int) (location.getLatitude());
-        int lng = (int) (location.getLongitude());
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-        Toast.makeText(this, "Enabled new provider " + provider,
-                Toast.LENGTH_SHORT).show();
-
+        this.location = location;
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-        Toast.makeText(this, "Disabled provider " + provider,
-                Toast.LENGTH_SHORT).show();
+        Log.d("Latitude","disable");
     }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+        Log.d("Latitude","enable");
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        Log.d("Latitude","status");
+    }
+
 
 }
 
