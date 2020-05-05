@@ -1,8 +1,12 @@
 package com.pranjal.sri.weatherapp;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.IntentSender;
 import android.graphics.drawable.GradientDrawable;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.app.Activity;
@@ -49,14 +53,15 @@ import okhttp3.Response;
 
 import static com.pranjal.sri.weatherapp.R.drawable.ic_storm;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements LocationListener {
 
 
     TextView mCity, mDatetime, mdescp, mTemp, mTmin, mTmax, mTfeelsLike, mWindSpeed;
     ImageView mWeatherType;
     LinearLayout mainBg;
     ImageButton mImageBtn;
-
+    private LocationManager locationManager;
+    private String provider;
 
     private final String appid = "ff512bbf2e8833415bb66c6427eab63e";
     protected static final String TAG = "LocationOnOff";
@@ -71,12 +76,19 @@ public class MainActivity extends Activity {
 
         this.setFinishOnTouchOutside(true);
 
+
         // Todo Location Already on  ... start
         final LocationManager manager = (LocationManager) MainActivity.this.getSystemService(Context.LOCATION_SERVICE);
         if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && hasGPSDevice(MainActivity.this)) {
             //Toast.makeText(MainActivity.this,"Gps already enabled",Toast.LENGTH_SHORT).show();
             //code to get GPS
-            setDataResponse(30.35f, 76.77f, appid);
+            LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+            Criteria criteria = new Criteria();
+            provider = locationManager.getBestProvider(criteria, false);
+            @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(provider);
+            onLocationChanged(location);
+
+            setDataResponse((float)location.getLatitude(), (float)location.getLongitude(), appid);
             //finish();
         }
         // Todo Location Already on  ... end
@@ -93,7 +105,13 @@ public class MainActivity extends Activity {
 
             //Toast.makeText(MainActivity.this,"Gps already enabled",Toast.LENGTH_SHORT).show();
             //yaha bhi same
-            setDataResponse(30.35f, 76.77f, appid);
+            LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+            Criteria criteria = new Criteria();
+            provider = locationManager.getBestProvider(criteria, false);
+            @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(provider);
+            onLocationChanged(location);
+
+            setDataResponse((float)location.getLatitude(), (float)location.getLongitude(), appid);
         }
 
         //setDataResponse(30.35f, 76.77f, appid);
@@ -320,6 +338,45 @@ public class MainActivity extends Activity {
                 }
             });
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    protected void onResume() {
+        super.onResume();
+        locationManager.requestLocationUpdates(provider, 400, 1, this);
+    }
+
+    /* Remove the locationlistener updates when Activity is paused */
+    @Override
+    protected void onPause() {
+        super.onPause();
+        locationManager.removeUpdates(this);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        int lat = (int) (location.getLatitude());
+        int lng = (int) (location.getLongitude());
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+        Toast.makeText(this, "Enabled new provider " + provider,
+                Toast.LENGTH_SHORT).show();
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+        Toast.makeText(this, "Disabled provider " + provider,
+                Toast.LENGTH_SHORT).show();
     }
 
 }
