@@ -1,8 +1,10 @@
 package com.pranjal.sri.weatherapp;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Criteria;
 import android.location.Location;
@@ -19,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
@@ -85,23 +88,34 @@ public class MainActivity extends Activity implements LocationListener {
             LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
             Criteria criteria = new Criteria();
             provider = locationManager.getBestProvider(criteria, false);
-            @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(provider);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                Toast.makeText(this, "Check bottom", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Location location = locationManager.getLastKnownLocation(provider);
             onLocationChanged(location);
 
-            setDataResponse((float)location.getLatitude(), (float)location.getLongitude(), appid);
+            setDataResponse((float) location.getLatitude(), (float) location.getLongitude(), appid);
             //finish();
         }
         // Todo Location Already on  ... end
 
-        if(!hasGPSDevice(MainActivity.this)){
-            Toast.makeText(MainActivity.this,"Gps not Supported",Toast.LENGTH_SHORT).show();
+        if (!hasGPSDevice(MainActivity.this)) {
+            Toast.makeText(MainActivity.this, "Gps not Supported", Toast.LENGTH_SHORT).show();
         }
 
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && hasGPSDevice(MainActivity.this)) {
 
             //Toast.makeText(MainActivity.this,"Gps not enabled",Toast.LENGTH_SHORT).show();
             enableLoc();
-        }else{
+        } else {
 
             //Toast.makeText(MainActivity.this,"Gps already enabled",Toast.LENGTH_SHORT).show();
             //yaha bhi same
@@ -111,7 +125,7 @@ public class MainActivity extends Activity implements LocationListener {
             @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(provider);
             onLocationChanged(location);
 
-            setDataResponse((float)location.getLatitude(), (float)location.getLongitude(), appid);
+            setDataResponse((float) location.getLatitude(), (float) location.getLongitude(), appid);
         }
 
         //setDataResponse(30.35f, 76.77f, appid);
@@ -302,7 +316,7 @@ public class MainActivity extends Activity implements LocationListener {
                         @Override
                         public void onConnectionFailed(ConnectionResult connectionResult) {
 
-                            Log.d("Location error","Location error " + connectionResult.getErrorCode());
+                            Log.d("Location error", "Location error " + connectionResult.getErrorCode());
                         }
                     }).build();
             googleApiClient.connect();
@@ -340,10 +354,20 @@ public class MainActivity extends Activity implements LocationListener {
         }
     }
 
-    @SuppressLint("MissingPermission")
     @Override
     protected void onResume() {
         super.onResume();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            Toast.makeText(this, "Check top", Toast.LENGTH_SHORT).show();
+            return;
+        }
         locationManager.requestLocationUpdates(provider, 400, 1, this);
     }
 
